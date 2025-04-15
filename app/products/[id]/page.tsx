@@ -14,7 +14,7 @@ const getCampaignIdsByProductId = async (productId: string) => {
   return campaignIds;
 };
 
-const getCampaignId = async (campaignId: string) => {
+const getCampaignById = async (campaignId: string) => {
   const campaign = await client.getListDetail({
     endpoint: "cp-1",
     contentId: campaignId,
@@ -37,7 +37,7 @@ export default async function Page({
 
   const campaigns = [];
   for (const campaignId of campaignIds) {
-    const campaign = await getCampaignId(campaignId);
+    const campaign = await getCampaignById(campaignId);
     campaigns.push(campaign);
   }
   const afterSecondCall = performance.now();
