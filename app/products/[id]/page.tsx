@@ -1,7 +1,7 @@
 import React from "react";
 import { client } from "@/app/lib/microcms";
 
-export const getCampaignIdsByProductId = async (productId: string) => {
+const getCampaignIdsByProductId = async (productId: string) => {
   const results = await client.getList({
     endpoint: "cp-relation-products",
     queries: {
@@ -14,7 +14,7 @@ export const getCampaignIdsByProductId = async (productId: string) => {
   return campaignIds;
 };
 
-export const getCampaignId = async (campaignId: string) => {
+const getCampaignId = async (campaignId: string) => {
   const campaign = await client.getListDetail({
     endpoint: "cp-1",
     contentId: campaignId,
