@@ -1,5 +1,6 @@
 "use server";
 import { client } from "@/app/lib/microcms";
+import { log } from "console";
 import { revalidatePath } from "next/cache";
 
 // フォーム送信のためのサーバーアクション
@@ -65,34 +66,55 @@ async function updateProductCampaigns(
   productIds: string[],
   newCampaignId: string
 ) {
+  console.log(productIds);
+  console.log(newCampaignId);
+
+  const results = [];
+  let hasError = false;
+  let errorMessage = "";
+
   // 各商品IDを処理
   for (const productId of productIds) {
     try {
       // 既存のキャンペーンを取得
       const existingCampaignIds = await fetchProductCampaigns(productId);
-
+      console.log({ existingCampaignIds });
       // 新しいキャンペーンが存在しない場合のみ追加
       const updatedCampaignIds = existingCampaignIds.includes(newCampaignId)
         ? existingCampaignIds
         : [...existingCampaignIds, newCampaignId];
 
       // 商品のキャンペーンデータを更新
-      await updateProductWithCampaign(productId, updatedCampaignIds);
-      return {
-        success: true,
-        message: `商品ID ${productId} のキャンペーンデータを更新しました。https://maf8ibsb9h.microcms.io/apis/desc-cp-a/${productId}にアクセスして確認してください。`,
-      };
+      const result = await updateProductWithCampaign(
+        productId,
+        updatedCampaignIds
+      );
+      console.log({ result });
+      results.push(`商品ID ${productId} のキャンペーンデータを更新しました。`);
     } catch (error) {
       console.error(
         `商品ID ${productId} の更新中にエラーが発生しました:`,
         error
       );
-      return {
-        success: false,
-        message: `商品ID ${productId} の更新中にエラーが発生しました: ${error}`,
-      };
+      hasError = true;
+      errorMessage = `商品ID ${productId} の更新中にエラーが発生しました: ${error}`;
+      // エラーが発生しても処理を続行
     }
   }
+
+  if (hasError && results.length === 0) {
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+
+  return {
+    success: true,
+    message:
+      results.join("\n") +
+      "\nhttps://maf8ibsb9h.microcms.io/apis/desc-cp-a/ にアクセスして確認してください。",
+  };
 }
 
 /* 
